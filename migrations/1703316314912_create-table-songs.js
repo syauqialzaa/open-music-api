@@ -20,7 +20,7 @@ exports.up = pgm => {
     },
     genre: {
       type: 'TEXT',
-      notNull: false
+      notNull: true
     },
     duration: {
       type: 'INT',
@@ -34,7 +34,7 @@ exports.up = pgm => {
       type: 'TEXT',
       notNull: true
     },
-    updated_ta: {
+    updated_at: {
       type: 'TEXT',
       notNull: true
     }
