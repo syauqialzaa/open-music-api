@@ -4,14 +4,10 @@ const mapDBToAlbums = ({
   id,
   name,
   year
-  // created_at,
-  // updated_at
 }) => ({
   id,
   name,
   year
-  // createdAt: created_at,
-  // updatedAt: updated_at
 })
 
 const mapDBToSongs = ({
@@ -21,9 +17,7 @@ const mapDBToSongs = ({
   performer,
   genre,
   duration,
-  album_id,
-  created_at,
-  updated_at
+  album_id
 }) => ({
   id,
   title,
@@ -31,9 +25,7 @@ const mapDBToSongs = ({
   performer,
   genre,
   duration,
-  albumId: album_id,
-  createdAt: created_at,
-  updatedAt: updated_at
+  albumId: album_id
 })
 
 module.exports = { mapDBToAlbums, mapDBToSongs }
