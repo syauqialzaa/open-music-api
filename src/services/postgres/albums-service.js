@@ -21,7 +21,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query)
     if (!result.rows[0].id) {
-      throw new InvariantError('Album gagal ditambahkan')
+      throw new InvariantError('Album failed to add.')
     }
 
     return result.rows[0].id
@@ -33,17 +33,37 @@ class AlbumsService {
   }
 
   async getAlbumById (id) {
-    const query = {
+    const albumQuery = {
       text: 'SELECT * FROM albums WHERE id = $1',
       values: [id]
     }
 
-    const result = await this._pool.query(query)
-    if (!result.rows.length) {
-      throw new NotFoundError('Album tidak ditemukan')
+    const songQuery = {
+      text: 'SELECT id, title, performer FROM songs WHERE album_id = $1 ',
+      values: [id]
     }
 
-    return result.rows.map(mapDBToAlbums)[0]
+    // run both queries parallelly using Promise.all
+    const [albumResult, songsResult] = await Promise.all([
+      this._pool.query(albumQuery),
+      this._pool.query(songQuery)
+    ])
+
+    if (!albumResult.rows.length) {
+      throw new NotFoundError('Album not found.')
+    }
+
+    const albumData = albumResult.rows[0]
+    const songsData = songsResult.rows
+
+    const albumWithSongs = {
+      id: albumData.id,
+      name: albumData.name,
+      year: albumData.year,
+      songs: songsData
+    }
+
+    return albumWithSongs
   }
 
   async editAlbumById (id, { name, year }) {
@@ -55,7 +75,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query)
     if (!result.rows.length) {
-      throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan')
+      throw new NotFoundError('Album failed to update. Id not found.')
     }
   }
 
@@ -67,7 +87,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query)
     if (!result.rows.length) {
-      throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan')
+      throw new NotFoundError('Album failed to delete. Id not found.')
     }
   }
 }
