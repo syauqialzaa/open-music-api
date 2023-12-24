@@ -60,9 +60,10 @@ const init = async () => {
       }
 
       const newResponse = h.response({
-        status: 'error',
+        status: 'fail',
         message: 'Terjadi kegagalan pada internal server'
       })
+
       newResponse.code(500)
       return newResponse
     }
@@ -71,7 +72,7 @@ const init = async () => {
   })
 
   await server.start()
-  console.log(`Server running on ${server.info.uri}...`)
+  console.log(`Server berjalan pada ${server.info.uri}...`)
 }
 
 init()
