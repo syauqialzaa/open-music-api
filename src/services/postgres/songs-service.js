@@ -27,9 +27,20 @@ class SongsService {
     return result.rows[0].id
   }
 
-  async getSongs () {
-    const result = await this._pool.query('SELECT id, title, performer FROM songs')
-    return result.rows.map(mapDBToSongs)
+  async getSongs ({ title, performer }) {
+    const query = 'SELECT id, title, performer FROM songs'
+    const result = await this._pool.query(query)
+    let filteredSongs = result.rows
+
+    if (title !== '') {
+      filteredSongs = filteredSongs.filter((song) => song.title.toLowerCase().includes(title.toLowerCase()))
+    }
+
+    if (performer !== '') {
+      filteredSongs = filteredSongs.filter((song) => song.performer.toLowerCase().includes(performer.toLowerCase()))
+    }
+
+    return filteredSongs
   }
 
   async getSongById (id) {
