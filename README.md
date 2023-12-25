@@ -38,6 +38,8 @@ Access the class: https://www.dicoding.com/academies/271
 │ ├── validator/                      // validate inputted data payload.
 │ │ ├── albums/
 │ │ └── songs/
+│ ├── extensions.js                   // handle server event extensions.
+│ ├── plugins.js                      // handle server plugin APIs.
 │ └── server.js                       // load the code for create, configure, and run HTTP server using Hapi, registration will happen in here.
 └── package.json
 ```
@@ -46,7 +48,7 @@ Access the class: https://www.dicoding.com/academies/271
 
 1. Clone this repository
 2. Run `npm install`
-3. Create `.env` file then write the lines of code as shown in the `.env.example` file and adjust with your configuration
+3. Create `.env` file then write the lines of code as shown in the `.env.example` file and adjust with your PostgreSQL configuration
 4. Run `npm run migrate up`
 5. Run `npm run start:prod` for production mode or `npm run start:dev` for development mode with nodemon
 
@@ -59,4 +61,4 @@ Automatic Testing with Newman or import collection and environment API Test file
 Using Newman:
 1. Install newman globally with `npm install newman --g`
 2. Run `newman run 'Open Music API V1 Test.postman_collection.json' --environment 'OpenMusic API Test.postman_environment.json'`
-3. Then make sure all tests are passed
+3. Then make sure all tests were passed
