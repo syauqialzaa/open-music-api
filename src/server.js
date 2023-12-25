@@ -1,6 +1,8 @@
 require('dotenv').config()
 
 const Hapi = require('@hapi/hapi')
+const ServerPlugins = require('./plugins')
+const ServerEventExtensions = require('./extensions')
 
 const init = async () => {
   const server = Hapi.server({
@@ -12,6 +14,9 @@ const init = async () => {
       }
     }
   })
+
+  await ServerPlugins(server)
+  server.ext('onPreResponse', (request, h) => ServerEventExtensions(request, h))
 
   await server.start()
   console.log(`Server running on ${server.info.uri}...`)
