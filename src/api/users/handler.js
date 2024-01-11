@@ -1,4 +1,5 @@
 const autoBind = require('auto-bind')
+const { postSuccessResponse, requestSuccessResponse } = require('../../responses')
 
 class UsersHandler {
   constructor (service, validator) {
@@ -13,31 +14,14 @@ class UsersHandler {
     const { username, password, fullname } = request.payload
     const userId = await this._service.addUser({ username, password, fullname })
 
-    const response = h.response({
-      status: 'success',
-      message: 'User added successfully.',
-      data: {
-        userId
-      }
-    })
-
-    response.code(201)
-    return response
+    return postSuccessResponse(h, 'User added successfully.', { userId })
   }
 
   async getUserByIdHandler (request, h) {
     const { id } = request.params
     const user = await this._service.getUserById(id)
 
-    const response = h.response({
-      status: 'success',
-      data: {
-        user
-      }
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, undefined, { user })
   }
 }
 

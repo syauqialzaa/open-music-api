@@ -1,4 +1,5 @@
 const autoBind = require('auto-bind')
+const { postSuccessResponse, requestSuccessResponse } = require('../../responses')
 
 class SongsHandler {
   constructor (service, validator) {
@@ -13,16 +14,7 @@ class SongsHandler {
     const { title, year, performer, genre, duration = null, albumId = null } = request.payload
     const songId = await this._service.addSong({ title, year, performer, genre, duration, albumId })
 
-    const response = h.response({
-      status: 'success',
-      message: 'Song added successfully.',
-      data: {
-        songId
-      }
-    })
-
-    response.code(201)
-    return response
+    return postSuccessResponse(h, 'Song added successfully.', { songId })
   }
 
   async getSongsHandler (request, h) {
@@ -30,30 +22,14 @@ class SongsHandler {
     const { title = '', performer = '' } = request.query
     const songs = await this._service.getSongs({ title, performer })
 
-    const response = h.response({
-      status: 'success',
-      data: {
-        songs
-      }
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, undefined, { songs })
   }
 
   async getSongByIdHandler (request, h) {
     const { id } = request.params
     const song = await this._service.getSongById(id)
 
-    const response = h.response({
-      status: 'success',
-      data: {
-        song
-      }
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, undefined, { song })
   }
 
   async putSongByIdHandler (request, h) {
@@ -61,26 +37,14 @@ class SongsHandler {
     const { id } = request.params
     await this._service.editSongById(id, request.payload)
 
-    const response = h.response({
-      status: 'success',
-      message: 'Song updated successfully.'
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, 'Song updated successfully.', undefined)
   }
 
   async deleteSongByIdHandler (request, h) {
     const { id } = request.params
     await this._service.deleteSongById(id)
 
-    const response = h.response({
-      status: 'success',
-      message: 'Song deleted successfully.'
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, 'Song deleted successfully.', undefined)
   }
 }
 

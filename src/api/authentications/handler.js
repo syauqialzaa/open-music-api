@@ -1,4 +1,5 @@
 const autoBind = require('auto-bind')
+const { postSuccessResponse, requestSuccessResponse } = require('../../responses')
 
 class AuthenticationsHandler {
   constructor (authenticationsService, usersService, tokenManager, validator) {
@@ -19,17 +20,7 @@ class AuthenticationsHandler {
     const refreshToken = this._tokenManager.generateRefreshToken({ id })
 
     await this._authenticationsService.addRefreshToken(refreshToken)
-    const response = h.response({
-      status: 'success',
-      message: 'Authentication added successfully.',
-      data: {
-        accessToken,
-        refreshToken
-      }
-    })
-
-    response.code(201)
-    return response
+    return postSuccessResponse(h, 'Authentication added successfully.', { accessToken, refreshToken })
   }
 
   async putAuthenticationHandler (request, h) {
@@ -40,16 +31,7 @@ class AuthenticationsHandler {
     const { id } = this._tokenManager.verifyRefreshToken(refreshToken)
 
     const accessToken = this._tokenManager.generateAccessToken({ id })
-    const response = h.response({
-      status: 'success',
-      message: 'Access token updated successfully.',
-      data: {
-        accessToken
-      }
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, 'Access token updated successfully.', { accessToken })
   }
 
   async deleteAuthenticationHandler (request, h) {
@@ -59,13 +41,7 @@ class AuthenticationsHandler {
     await this._authenticationsService.verifyRefreshToken(refreshToken)
     await this._authenticationsService.deleteRefreshToken(refreshToken)
 
-    const response = h.response({
-      status: 'success',
-      message: 'Refresh token deleted successfully.'
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, 'Refresh token deleted successfully.', undefined)
   }
 }
 

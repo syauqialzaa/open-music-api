@@ -6,13 +6,6 @@ const ServerEventExtensions = (request, h) => {
 
   if (response instanceof Error) {
     if (response instanceof ClientError) {
-      // const newResponse = h.response({
-      //   status: 'fail',
-      //   message: response.message
-      // })
-
-      // newResponse.code(response.statusCode)
-      // return newResponse
       return clientErrorResponse(response, h)
     }
 
@@ -20,13 +13,6 @@ const ServerEventExtensions = (request, h) => {
       return h.continue
     }
 
-    // const newResponse = h.response({
-    //   status: 'fail',
-    //   message: 'Internal server error has occured.'
-    // })
-
-    // newResponse.code(500)
-    // return newResponse
     return internalServerErrorResponse(h, 'Internal server error has occured.')
   }
 
