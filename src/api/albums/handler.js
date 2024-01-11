@@ -1,4 +1,5 @@
 const autoBind = require('auto-bind')
+const { postSuccessResponse } = require('../../responses')
 
 class AlbumsHandler {
   constructor (service, validator) {
@@ -13,16 +14,17 @@ class AlbumsHandler {
     const { name, year } = request.payload
     const albumId = await this._service.addAlbum({ name, year })
 
-    const response = h.response({
-      status: 'success',
-      message: 'Album added successfully.',
-      data: {
-        albumId
-      }
-    })
+    // const response = h.response({
+    //   status: 'success',
+    //   message: 'Album added successfully.',
+    //   data: {
+    //     albumId
+    //   }
+    // })
 
-    response.code(201)
-    return response
+    // response.code(201)
+    // return response
+    return postSuccessResponse(h, 'Album added successfully.', { albumId })
   }
 
   async getAlbumsHandler () {

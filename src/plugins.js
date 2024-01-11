@@ -1,29 +1,59 @@
-// albums
+const Jwt = require('@hapi/jwt')
+
 const albums = require('./api/albums')
 const AlbumsService = require('./services/postgres/albums-service')
 const AlbumsValidator = require('./validator/albums')
 
-// songs
 const songs = require('./api/songs')
 const SongsService = require('./services/postgres/songs-service')
 const SongsValidator = require('./validator/songs')
 
-// users
 const users = require('./api/users')
 const UsersService = require('./services/postgres/users-service')
 const UsersValidator = require('./validator/users')
 
-// authentications
 const authentications = require('./api/authentications')
 const AuthenticationsService = require('./services/postgres/authentications-service')
 const TokenManager = require('./token/token-manager')
 const AuthenticationsValidator = require('./validator/authentications')
+
+const collaborations = require('./api/collaborations')
+const CollaborationsService = require('./services/postgres/collaborations-service')
+const CollaborationsValidator = require('./validator/collaborations')
+
+const playlists = require('./api/playlists')
+const PlaylistsService = require('./services/postgres/playlists-service')
+const PlaylistsValidator = require('./validator/playlists')
 
 const ServerPlugins = async server => {
   const albumsService = new AlbumsService()
   const songsService = new SongsService()
   const usersService = new UsersService()
   const authenticationsService = new AuthenticationsService()
+  const collaborationsService = new CollaborationsService()
+  const playlistsService = new PlaylistsService(collaborationsService)
+
+  await server.register([
+    {
+      plugin: Jwt
+    }
+  ])
+
+  server.auth.strategy('openmusic_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE
+    },
+    validate: artifacts => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id
+      }
+    })
+  })
 
   await server.register([
     {
@@ -54,6 +84,23 @@ const ServerPlugins = async server => {
         usersService,
         tokenManager: TokenManager,
         validator: AuthenticationsValidator
+      }
+    },
+    {
+      plugin: collaborations,
+      options: {
+        collaborationsService,
+        playlistsService,
+        usersService,
+        validator: CollaborationsValidator
+      }
+    },
+    {
+      plugin: playlists,
+      options: {
+        playlistsService,
+        songsService,
+        validator: PlaylistsValidator
       }
     }
   ])

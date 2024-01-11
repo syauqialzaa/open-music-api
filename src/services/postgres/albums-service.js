@@ -1,7 +1,7 @@
 const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 const InvariantError = require('../../exceptions/invariant-error')
-const { mapDBToAlbums } = require('../../utils')
+const { mapDBToAlbums, mapDBToAlbumWithSongs } = require('../../utils')
 const NotFoundError = require('../../exceptions/not-found-error')
 
 class AlbumsService {
@@ -33,35 +33,38 @@ class AlbumsService {
   }
 
   async getAlbumById (id) {
-    const albumQuery = {
-      text: 'SELECT * FROM albums WHERE id = $1',
+    const query = {
+      text: `
+        SELECT
+          albums.id,
+          albums.name,
+          albums.year,
+          songs.id AS song_id,
+          songs.title AS song_title,
+          songs.performer AS song_performer
+        FROM albums
+        LEFT JOIN songs ON albums.id = songs.album_id
+        WHERE albums.id = $1
+      `,
       values: [id]
     }
 
-    const songQuery = {
-      text: 'SELECT id, title, performer FROM songs WHERE album_id = $1 ',
-      values: [id]
-    }
-
-    // run both queries parallelly using Promise.all
-    const [albumResult, songsResult] = await Promise.all([
-      this._pool.query(albumQuery),
-      this._pool.query(songQuery)
-    ])
-
-    if (!albumResult.rows.length) {
+    const result = await this._pool.query(query)
+    if (!result.rows.length) {
       throw new NotFoundError('Album not found.')
     }
 
-    const albumData = albumResult.rows[0]
-    const songsData = songsResult.rows
+    const albumWithSongs = result.rows.reduce((acc, row) => {
+      const mappedData = mapDBToAlbumWithSongs(row)
 
-    const albumWithSongs = {
-      id: albumData.id,
-      name: albumData.name,
-      year: albumData.year,
-      songs: songsData
-    }
+      if (!acc.id) {
+        acc = mappedData
+      } else if (mappedData.songs.length > 0) {
+        acc.songs.push(...mappedData.songs)
+      }
+
+      return acc
+    }, {})
 
     return albumWithSongs
   }

@@ -10,6 +10,19 @@ const mapDBToAlbums = ({
   year
 })
 
+const mapDBToAlbumWithSongs = (row) => {
+  const { id, name, year, song_id, song_title, song_performer } = row
+
+  return {
+    id,
+    name,
+    year,
+    songs: song_id
+      ? [{ id: song_id, title: song_title, performer: song_performer }]
+      : []
+  }
+}
+
 const mapDBToSongs = ({
   id,
   title,
@@ -28,4 +41,27 @@ const mapDBToSongs = ({
   albumId: album_id
 })
 
-module.exports = { mapDBToAlbums, mapDBToSongs }
+const mapDBToPlaylists = ({
+  id,
+  name,
+  username
+}) => ({
+  id,
+  name,
+  username
+})
+
+const mapDBToSongsFromPlaylist = (row) => {
+  const { id, name, username, song_id, song_title, song_performer } = row
+
+  return {
+    id,
+    name,
+    username,
+    songs: song_id
+      ? [{ id: song_id, title: song_title, performer: song_performer }]
+      : []
+  }
+}
+
+module.exports = { mapDBToAlbums, mapDBToSongs, mapDBToAlbumWithSongs, mapDBToPlaylists, mapDBToSongsFromPlaylist }

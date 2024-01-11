@@ -2,7 +2,7 @@ require('dotenv').config()
 
 const Hapi = require('@hapi/hapi')
 const ServerPlugins = require('./plugins')
-const ServerEventExtensions = require('./extensions')
+const ServerEventExtensions = require('./event-extensions')
 
 const init = async () => {
   const server = Hapi.server({
