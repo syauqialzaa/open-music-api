@@ -64,4 +64,25 @@ const mapDBToSongsFromPlaylist = (row) => {
   }
 }
 
-module.exports = { mapDBToAlbums, mapDBToSongs, mapDBToAlbumWithSongs, mapDBToPlaylists, mapDBToSongsFromPlaylist }
+const mapDBToPlaylistSongActivities = (row) => {
+  const activities = row.map((activity) => ({
+    username: activity.username,
+    title: activity.title,
+    action: activity.action,
+    time: activity.time
+  }))
+
+  return {
+    playlistId: row[0].playlist_id,
+    activities
+  }
+}
+
+module.exports = {
+  mapDBToAlbums,
+  mapDBToSongs,
+  mapDBToAlbumWithSongs,
+  mapDBToPlaylists,
+  mapDBToSongsFromPlaylist,
+  mapDBToPlaylistSongActivities
+}

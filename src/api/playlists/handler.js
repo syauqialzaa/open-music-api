@@ -44,6 +44,7 @@ class PlaylistsHandler {
 
     await this._playlistsService.verifyPlaylistAccess(id, credentialId)
     await this._songsService.getSongById(songId)
+    await this._playlistsService.addActionToPlaylistSongActivities(id, songId, credentialId, 'add')
     const playlistSongId = await this._playlistsService.addSongToPlaylist(id, songId)
 
     return postSuccessResponse(h, 'Song to Playlist added successfully.', { playlistSongId })
@@ -60,14 +61,26 @@ class PlaylistsHandler {
   }
 
   async deleteSongFromPlaylistHAndler (request, h) {
+    this._validator.validatePlaylistSongPayload(request.payload)
     const { id } = request.params
     const { songId } = request.payload
     const { id: credentialId } = request.auth.credentials
 
     await this._playlistsService.verifyPlaylistAccess(id, credentialId)
+    await this._playlistsService.addActionToPlaylistSongActivities(id, songId, credentialId, 'delete')
     await this._playlistsService.deleteSongFromPlaylist(id, songId)
 
     return requestSuccessResponse(h, 'Song deleted successfully from playlist.', undefined)
+  }
+
+  async getPlaylistSongActivitiesHandler (request, h) {
+    const { id } = request.params
+    const { id: credentialId } = request.auth.credentials
+
+    await this._playlistsService.verifyPlaylistAccess(id, credentialId)
+    const activities = await this._playlistsService.getPlaylistSongActivities(id)
+
+    return requestSuccessResponse(h, undefined, activities)
   }
 }
 

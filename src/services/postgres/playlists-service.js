@@ -1,7 +1,7 @@
 const { nanoid } = require('nanoid')
 const { Pool } = require('pg')
 const InvariantError = require('../../exceptions/invariant-error')
-const { mapDBToPlaylists, mapDBToSongsFromPlaylist } = require('../../utils')
+const { mapDBToPlaylists, mapDBToSongsFromPlaylist, mapDBToPlaylistSongActivities } = require('../../utils')
 const NotFoundError = require('../../exceptions/not-found-error')
 const AuthorizationError = require('../../exceptions/authorization-error')
 
@@ -155,6 +155,46 @@ class PlaylistsService {
         throw error
       }
     }
+  }
+
+  async addActionToPlaylistSongActivities (playlistId, songId, userId, action) {
+    const id = `activity-${nanoid(16)}`
+    const time = new Date().toISOString()
+
+    const query = {
+      text: 'INSERT INTO playlist_song_activities VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
+      values: [id, playlistId, songId, userId, action, time]
+    }
+
+    const result = await this._pool.query(query)
+    if (!result.rows[0]) {
+      throw new InvariantError('Playlist song activity failed to add.')
+    }
+  }
+
+  async getPlaylistSongActivities (playlistId) {
+    const query = {
+      text: `
+        SELECT
+          playlist_song_activities.playlist_id,
+          users.username,
+          songs.title,
+          playlist_song_activities.action,
+          playlist_song_activities.time
+        FROM playlist_song_activities
+        JOIN users ON playlist_song_activities.user_id = users.id
+        JOIN songs ON playlist_song_activities.song_id = songs.id
+        WHERE playlist_song_activities.playlist_id = $1
+      `,
+      values: [playlistId]
+    }
+
+    const result = await this._pool.query(query)
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlist not found.')
+    }
+
+    return mapDBToPlaylistSongActivities(result.rows)
   }
 }
 
