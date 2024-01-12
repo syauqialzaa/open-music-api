@@ -1,4 +1,5 @@
 const autoBind = require('auto-bind')
+const { postSuccessResponse, requestSuccessResponse } = require('../../responses')
 
 class AlbumsHandler {
   constructor (service, validator) {
@@ -10,44 +11,24 @@ class AlbumsHandler {
 
   async postAlbumHandler (request, h) {
     this._validator.validateAlbumPayload(request.payload)
+
     const { name, year } = request.payload
     const albumId = await this._service.addAlbum({ name, year })
 
-    const response = h.response({
-      status: 'success',
-      message: 'Album added successfully.',
-      data: {
-        albumId
-      }
-    })
-
-    response.code(201)
-    return response
+    return postSuccessResponse(h, 'Album added successfully.', { albumId })
   }
 
-  async getAlbumsHandler () {
+  async getAlbumsHandler (h) {
     const albums = await this._service.getAlbums()
-    return {
-      status: 'success',
-      data: {
-        albums
-      }
-    }
+
+    return requestSuccessResponse(h, undefined, { albums })
   }
 
   async getAlbumByIdHandler (request, h) {
     const { id } = request.params
     const album = await this._service.getAlbumById(id)
 
-    const response = h.response({
-      status: 'success',
-      data: {
-        album
-      }
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, undefined, { album })
   }
 
   async putAlbumByIdHandler (request, h) {
@@ -55,26 +36,14 @@ class AlbumsHandler {
     const { id } = request.params
     await this._service.editAlbumById(id, request.payload)
 
-    const response = h.response({
-      status: 'success',
-      message: 'Album updated successfully.'
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, 'Album updated successfully.', undefined)
   }
 
   async deleteAlbumByIdHandler (request, h) {
     const { id } = request.params
     await this._service.deleteAlbumById(id)
 
-    const response = h.response({
-      status: 'success',
-      message: 'Album deleted successfully.'
-    })
-
-    response.code(200)
-    return response
+    return requestSuccessResponse(h, 'Album deleted successfully.', undefined)
   }
 }
 
