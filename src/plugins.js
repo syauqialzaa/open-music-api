@@ -1,4 +1,5 @@
 const Jwt = require('@hapi/jwt')
+const credentials = require('../config/credentials')
 
 const albums = require('./api/albums')
 const AlbumsService = require('./services/postgres/albums-service')
@@ -44,12 +45,12 @@ const ServerPlugins = async server => {
   ])
 
   server.auth.strategy('openmusic_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: credentials.jwt.accessTokenKey,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE
+      maxAgeSec: credentials.jwt.accessTokenAge
     },
     validate: artifacts => ({
       isValid: true,
