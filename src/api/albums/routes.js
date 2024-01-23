@@ -23,6 +23,19 @@ const routes = handler => [
     method: 'DELETE',
     path: '/albums/{id}',
     handler: handler.deleteAlbumByIdHandler
+  },
+  {
+    method: 'POST',
+    path: '/albums/{id}/covers',
+    handler: handler.postCoverAlbumUrlHandler,
+    options: {
+      payload: {
+        allow: 'multipart/form-data',
+        multipart: true,
+        output: 'stream',
+        maxBytes: 512000
+      }
+    }
   }
 ]
 

@@ -3,10 +3,12 @@ const { nanoid } = require('nanoid')
 const InvariantError = require('../../exceptions/invariant-error')
 const { mapDBToAlbums, mapDBToAlbumWithSongs } = require('../../utils')
 const NotFoundError = require('../../exceptions/not-found-error')
+const credentials = require('../../../config/credentials')
 
 class AlbumsService {
-  constructor () {
+  constructor (storageService) {
     this._pool = new Pool()
+    this._storageService = storageService
   }
 
   async addAlbum ({ name, year }) {
@@ -39,6 +41,7 @@ class AlbumsService {
           albums.id,
           albums.name,
           albums.year,
+          albums.cover_url,
           songs.id AS song_id,
           songs.title AS song_title,
           songs.performer AS song_performer
@@ -91,6 +94,24 @@ class AlbumsService {
     const result = await this._pool.query(query)
     if (!result.rowCount) {
       throw new NotFoundError('Album failed to delete. Id not found.')
+    }
+  }
+
+  async addCoverAlbumUrl (file, albumId, fileExt) {
+    const filename = await this._storageService.writeCoverAlbumFile(file, albumId, fileExt)
+    if (!filename) {
+      throw new InvariantError('Cover failed to write.')
+    }
+
+    const coverUrl = `http://${credentials.server.host}:${credentials.server.port}/uploads/images/albums/${filename}`
+    const query = {
+      text: 'UPDATE albums SET cover_url = $1 WHERE id = $2 RETURNING id',
+      values: [coverUrl, albumId]
+    }
+
+    const result = await this._pool.query(query)
+    if (!result.rowCount) {
+      throw new NotFoundError('Album failed to update. Id not found.')
     }
   }
 }

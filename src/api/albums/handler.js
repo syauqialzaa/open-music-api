@@ -1,16 +1,18 @@
 const autoBind = require('auto-bind')
 const { postSuccessResponse, requestSuccessResponse } = require('../../responses')
+const path = require('path')
 
 class AlbumsHandler {
-  constructor (service, validator) {
+  constructor (service, albumsValidator, uploadsValidator) {
     this._service = service
-    this._validator = validator
+    this._albumsValidator = albumsValidator
+    this._uploadsValidator = uploadsValidator
 
     autoBind(this)
   }
 
   async postAlbumHandler (request, h) {
-    this._validator.validateAlbumPayload(request.payload)
+    this._albumsValidator.validateAlbumPayload(request.payload)
 
     const { name, year } = request.payload
     const albumId = await this._service.addAlbum({ name, year })
@@ -32,7 +34,7 @@ class AlbumsHandler {
   }
 
   async putAlbumByIdHandler (request, h) {
-    this._validator.validateAlbumPayload(request.payload)
+    this._albumsValidator.validateAlbumPayload(request.payload)
     const { id } = request.params
     await this._service.editAlbumById(id, request.payload)
 
@@ -44,6 +46,17 @@ class AlbumsHandler {
     await this._service.deleteAlbumById(id)
 
     return requestSuccessResponse(h, 'Album deleted successfully.', undefined)
+  }
+
+  async postCoverAlbumUrlHandler (request, h) {
+    const { cover } = request.payload
+    const { id } = request.params
+
+    this._uploadsValidator.validateImageHeaders(cover.hapi.headers)
+    const fileExt = path.extname(cover.hapi.filename)
+    await this._service.addCoverAlbumUrl(cover, id, fileExt)
+
+    return postSuccessResponse(h, 'Cover uploaded successfully.', undefined)
   }
 }
 

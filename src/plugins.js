@@ -1,5 +1,7 @@
 const Jwt = require('@hapi/jwt')
 const credentials = require('../config/credentials')
+const path = require('path')
+const Inert = require('@hapi/inert')
 
 const albums = require('./api/albums')
 const AlbumsService = require('./services/postgres/albums-service')
@@ -30,8 +32,13 @@ const _exports = require('./api/exports')
 const ProducerService = require('./services/rabbitmq/producer-service')
 const ExportsValidator = require('./validator/exports')
 
+const uploads = require('./api/uploads')
+const StorageService = require('./services/storage/storage-service')
+const UploadsValidator = require('./validator/uploads')
+
 const ServerPlugins = async server => {
-  const albumsService = new AlbumsService()
+  const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/files/images'))
+  const albumsService = new AlbumsService(storageService)
   const songsService = new SongsService()
   const usersService = new UsersService()
   const authenticationsService = new AuthenticationsService()
@@ -41,6 +48,9 @@ const ServerPlugins = async server => {
   await server.register([
     {
       plugin: Jwt
+    },
+    {
+      plugin: Inert
     }
   ])
 
@@ -65,7 +75,8 @@ const ServerPlugins = async server => {
       plugin: albums,
       options: {
         service: albumsService,
-        validator: AlbumsValidator
+        albumsValidator: AlbumsValidator,
+        uploadsValidator: UploadsValidator
       }
     },
     {
@@ -115,6 +126,9 @@ const ServerPlugins = async server => {
         service: ProducerService,
         validator: ExportsValidator
       }
+    },
+    {
+      plugin: uploads
     }
   ])
 }
