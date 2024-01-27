@@ -58,6 +58,29 @@ class AlbumsHandler {
 
     return postSuccessResponse(h, 'Cover uploaded successfully.', undefined)
   }
+
+  async postLikesToAlbumHandler (request, h) {
+    const { id } = request.params
+    const { id: credentialId } = request.auth.credentials
+
+    await this._service.addLikesToAlbum({ userId: credentialId, albumId: id })
+    return postSuccessResponse(h, 'Album likes added successfully.', undefined)
+  }
+
+  async deleteLikesFromAlbumHandler (request, h) {
+    const { id } = request.params
+    const { id: credentialId } = request.auth.credentials
+
+    await this._service.deleteLikesFromAlbum({ userId: credentialId, albumId: id })
+    return requestSuccessResponse(h, 'Album likes deleted successfully. ', undefined)
+  }
+
+  async getLikesFromAlbumHandler (request, h) {
+    const { id } = request.params
+
+    const likes = await this._service.getLikesFromAlbum(id)
+    return requestSuccessResponse(h, undefined, { likes })
+  }
 }
 
 module.exports = AlbumsHandler

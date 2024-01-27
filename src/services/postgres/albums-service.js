@@ -114,6 +114,60 @@ class AlbumsService {
       throw new NotFoundError('Album failed to update. Id not found.')
     }
   }
+
+  async addLikesToAlbum ({ userId, albumId }) {
+    await this.getAlbumById(albumId)
+    await this.verifyNewLikesToAlbum(userId, albumId)
+
+    const id = `album-likes-${nanoid(16)}`
+    const query = {
+      text: 'INSERT INTO user_album_likes VALUES($1, $2, $3) RETURNING id',
+      values: [id, userId, albumId]
+    }
+
+    const result = await this._pool.query(query)
+    if (!result.rowCount) {
+      throw new InvariantError('Album likes failed to add.')
+    }
+  }
+
+  async verifyNewLikesToAlbum (userId, albumId) {
+    const query = {
+      text: 'SELECT user_id, album_id FROM user_album_likes WHERE user_id = $1 AND album_id = $2',
+      values: [userId, albumId]
+    }
+
+    const result = await this._pool.query(query)
+    if (result.rowCount > 0) {
+      throw new InvariantError('Failed to add likes. Album already liked.')
+    }
+  }
+
+  async deleteLikesFromAlbum ({ userId, albumId }) {
+    const query = {
+      text: 'DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2 RETURNING id',
+      values: [userId, albumId]
+    }
+
+    const result = await this._pool.query(query)
+    if (!result.rowCount) {
+      throw new NotFoundError('Album likes failed to delete. Id not found.')
+    }
+  }
+
+  async getLikesFromAlbum (albumId) {
+    const query = {
+      text: 'SELECT * FROM user_album_likes WHERE album_id = $1',
+      values: [albumId]
+    }
+
+    const result = await this._pool.query(query)
+    if (!result.rowCount) {
+      throw new NotFoundError('Album likes not found.')
+    }
+
+    return result.rowCount
+  }
 }
 
 module.exports = AlbumsService

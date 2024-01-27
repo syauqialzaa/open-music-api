@@ -6,12 +6,10 @@ exports.up = pgm => {
     },
     user_id: {
       type: 'VARCHAR(50)',
-      unique: true,
       notNull: true
     },
     album_id: {
       type: 'VARCHAR(50)',
-      unique: true,
       notNull: true
     }
   })
