@@ -10,6 +10,9 @@ const credentials = {
   },
   rabbitmq: {
     server: process.env.RABBITMQ_SERVER
+  },
+  redis: {
+    host: process.env.REDIS_SERVER
   }
 }
 

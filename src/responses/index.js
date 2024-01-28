@@ -1,34 +1,52 @@
-const postSuccess = { status: 'success', code: 201 }
-const requestSuccess = { status: 'success', code: 200 }
+const success = {
+  status: 'success',
+  post: { code: 201 },
+  request: { code: 200 }
+}
 
-const clientError = { status: 'fail' }
-const internalServerError = { status: 'fail', code: 500 }
+const fail = {
+  status: 'fail',
+  internalServerError: { code: 500 }
+}
 
-const postSuccessResponse = (h, message, data) => {
+const postSuccessResponse = (h, { message = undefined, data = undefined }) => {
   const response = h.response({
-    status: postSuccess.status,
+    status: success.status,
     message,
     data
   })
 
-  response.code(postSuccess.code)
+  response.code(success.post.code)
   return response
 }
 
-const requestSuccessResponse = (h, message, data) => {
+const requestSuccessResponse = (h, { message = undefined, data = undefined }) => {
   const response = h.response({
-    status: requestSuccess.status,
+    status: success.status,
     message,
     data
   })
 
-  response.code(requestSuccess.code)
+  response.code(success.request.code)
+  return response
+}
+
+const requestCacheSuccessResponse = (h, { message = undefined, data = undefined }) => {
+  const response = h.response({
+    status: success.status,
+    message,
+    data
+  })
+
+  response.code(success.request.code)
+  response.header('X-Data-Source', 'cache')
+
   return response
 }
 
 const clientErrorResponse = (resp, h) => {
   const response = h.response({
-    status: clientError.status,
+    status: fail.status,
     message: resp.message
   })
 
@@ -38,12 +56,18 @@ const clientErrorResponse = (resp, h) => {
 
 const internalServerErrorResponse = (h, message) => {
   const response = h.response({
-    status: internalServerError.status,
+    status: fail.status,
     message
   })
 
-  response.code(internalServerError.code)
+  response.code(fail.internalServerError.code)
   return response
 }
 
-module.exports = { postSuccessResponse, requestSuccessResponse, clientErrorResponse, internalServerErrorResponse }
+module.exports = {
+  postSuccessResponse,
+  requestSuccessResponse,
+  requestCacheSuccessResponse,
+  clientErrorResponse,
+  internalServerErrorResponse
+}

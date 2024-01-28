@@ -14,14 +14,14 @@ class UsersHandler {
     const { username, password, fullname } = request.payload
     const userId = await this._service.addUser({ username, password, fullname })
 
-    return postSuccessResponse(h, 'User added successfully.', { userId })
+    return postSuccessResponse(h, { message: 'User added successfully.', data: { userId } })
   }
 
   async getUserByIdHandler (request, h) {
     const { id } = request.params
     const user = await this._service.getUserById(id)
 
-    return requestSuccessResponse(h, undefined, { user })
+    return requestSuccessResponse(h, { data: { user } })
   }
 }
 

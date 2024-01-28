@@ -20,7 +20,7 @@ class AuthenticationsHandler {
     const refreshToken = this._tokenManager.generateRefreshToken({ id })
 
     await this._authenticationsService.addRefreshToken(refreshToken)
-    return postSuccessResponse(h, 'Authentication added successfully.', { accessToken, refreshToken })
+    return postSuccessResponse(h, { message: 'Authentication added successfully.', data: { accessToken, refreshToken } })
   }
 
   async putAuthenticationHandler (request, h) {
@@ -31,7 +31,7 @@ class AuthenticationsHandler {
     const { id } = this._tokenManager.verifyRefreshToken(refreshToken)
 
     const accessToken = this._tokenManager.generateAccessToken({ id })
-    return requestSuccessResponse(h, 'Access token updated successfully.', { accessToken })
+    return requestSuccessResponse(h, { message: 'Access token updated successfully.', data: { accessToken } })
   }
 
   async deleteAuthenticationHandler (request, h) {
@@ -41,7 +41,7 @@ class AuthenticationsHandler {
     await this._authenticationsService.verifyRefreshToken(refreshToken)
     await this._authenticationsService.deleteRefreshToken(refreshToken)
 
-    return requestSuccessResponse(h, 'Refresh token deleted successfully.', undefined)
+    return requestSuccessResponse(h, { message: 'Refresh token deleted successfully.' })
   }
 }
 

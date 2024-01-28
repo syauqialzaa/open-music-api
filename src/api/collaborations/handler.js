@@ -20,7 +20,7 @@ class CollaborationsHandler {
     await this._usersService.getUserById(userId)
     const collaborationId = await this._collaborationsService.addCollaboration(playlistId, userId)
 
-    return postSuccessResponse(h, 'Collaboration added successfully.', { collaborationId })
+    return postSuccessResponse(h, { message: 'Collaboration added successfully.', data: { collaborationId } })
   }
 
   async deleteCollaborationHandler (request, h) {
@@ -31,7 +31,7 @@ class CollaborationsHandler {
     await this._playlistsService.verifyPlaylistOwner(playlistId, credentialId)
     await this._collaborationsService.deleteCollaboration(playlistId, userId)
 
-    return requestSuccessResponse(h, 'Collaboration deleted successfully.', undefined)
+    return requestSuccessResponse(h, { message: 'Collaboration deleted successfully.' })
   }
 }
 

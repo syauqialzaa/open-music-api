@@ -23,7 +23,7 @@ class ExportsHandler {
     }
 
     await this._service.sendMessage('export:playlist_songs', JSON.stringify(message))
-    return postSuccessResponse(h, 'We are processing your request.', undefined)
+    return postSuccessResponse(h, { message: 'We are processing your request.' })
   }
 }
 
