@@ -1,4 +1,7 @@
 const Jwt = require('@hapi/jwt')
+const credentials = require('../config/credentials')
+const path = require('path')
+const Inert = require('@hapi/inert')
 
 const albums = require('./api/albums')
 const AlbumsService = require('./services/postgres/albums-service')
@@ -25,8 +28,20 @@ const playlists = require('./api/playlists')
 const PlaylistsService = require('./services/postgres/playlists-service')
 const PlaylistsValidator = require('./validator/playlists')
 
+const _exports = require('./api/exports')
+const ProducerService = require('./services/rabbitmq/producer-service')
+const ExportsValidator = require('./validator/exports')
+
+const uploads = require('./api/uploads')
+const StorageService = require('./services/storage/storage-service')
+const UploadsValidator = require('./validator/uploads')
+
+const CacheService = require('./services/redis/cache-service')
+
 const ServerPlugins = async server => {
-  const albumsService = new AlbumsService()
+  const cacheService = new CacheService()
+  const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/files/images'))
+  const albumsService = new AlbumsService(storageService, cacheService)
   const songsService = new SongsService()
   const usersService = new UsersService()
   const authenticationsService = new AuthenticationsService()
@@ -36,16 +51,19 @@ const ServerPlugins = async server => {
   await server.register([
     {
       plugin: Jwt
+    },
+    {
+      plugin: Inert
     }
   ])
 
   server.auth.strategy('openmusic_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: credentials.jwt.accessTokenKey,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE
+      maxAgeSec: credentials.jwt.accessTokenAge
     },
     validate: artifacts => ({
       isValid: true,
@@ -60,7 +78,8 @@ const ServerPlugins = async server => {
       plugin: albums,
       options: {
         service: albumsService,
-        validator: AlbumsValidator
+        albumsValidator: AlbumsValidator,
+        uploadsValidator: UploadsValidator
       }
     },
     {
@@ -102,6 +121,17 @@ const ServerPlugins = async server => {
         songsService,
         validator: PlaylistsValidator
       }
+    },
+    {
+      plugin: _exports,
+      options: {
+        playlistsService,
+        service: ProducerService,
+        validator: ExportsValidator
+      }
+    },
+    {
+      plugin: uploads
     }
   ])
 }

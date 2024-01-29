@@ -21,7 +21,7 @@ class UsersService {
     }
 
     const result = await this._pool.query(query)
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('User failed to add.')
     }
 
@@ -35,7 +35,7 @@ class UsersService {
     }
 
     const result = await this._pool.query(query)
-    if (result.rows.length > 0) {
+    if (result.rowCount > 0) {
       throw new InvariantError('Failed to add user. Username has been used.')
     }
   }
@@ -47,7 +47,7 @@ class UsersService {
     }
 
     const result = await this._pool.query(query)
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('User not found.')
     }
 
@@ -61,7 +61,7 @@ class UsersService {
     }
 
     const result = await this._pool.query(query)
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new AuthenticationError('The credentials you provided are incorrect.')
     }
 

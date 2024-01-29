@@ -11,12 +11,13 @@ const mapDBToAlbums = ({
 })
 
 const mapDBToAlbumWithSongs = (row) => {
-  const { id, name, year, song_id, song_title, song_performer } = row
+  const { id, name, year, cover_url, song_id, song_title, song_performer } = row
 
   return {
     id,
     name,
     year,
+    coverUrl: cover_url,
     songs: song_id
       ? [{ id: song_id, title: song_title, performer: song_performer }]
       : []

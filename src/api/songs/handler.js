@@ -14,7 +14,7 @@ class SongsHandler {
     const { title, year, performer, genre, duration = null, albumId = null } = request.payload
     const songId = await this._service.addSong({ title, year, performer, genre, duration, albumId })
 
-    return postSuccessResponse(h, 'Song added successfully.', { songId })
+    return postSuccessResponse(h, { message: 'Song added successfully.', data: { songId } })
   }
 
   async getSongsHandler (request, h) {
@@ -22,14 +22,14 @@ class SongsHandler {
     const { title = '', performer = '' } = request.query
     const songs = await this._service.getSongs({ title, performer })
 
-    return requestSuccessResponse(h, undefined, { songs })
+    return requestSuccessResponse(h, { data: { songs } })
   }
 
   async getSongByIdHandler (request, h) {
     const { id } = request.params
     const song = await this._service.getSongById(id)
 
-    return requestSuccessResponse(h, undefined, { song })
+    return requestSuccessResponse(h, { data: { song } })
   }
 
   async putSongByIdHandler (request, h) {
@@ -37,14 +37,14 @@ class SongsHandler {
     const { id } = request.params
     await this._service.editSongById(id, request.payload)
 
-    return requestSuccessResponse(h, 'Song updated successfully.', undefined)
+    return requestSuccessResponse(h, { message: 'Song updated successfully.' })
   }
 
   async deleteSongByIdHandler (request, h) {
     const { id } = request.params
     await this._service.deleteSongById(id)
 
-    return requestSuccessResponse(h, 'Song deleted successfully.', undefined)
+    return requestSuccessResponse(h, { message: 'Song deleted successfully.' })
   }
 }
 

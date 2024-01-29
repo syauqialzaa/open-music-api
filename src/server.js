@@ -3,11 +3,12 @@ require('dotenv').config()
 const Hapi = require('@hapi/hapi')
 const ServerPlugins = require('./plugins')
 const ServerEventExtensions = require('./event-extensions')
+const credentials = require('../config/credentials')
 
 const init = async () => {
   const server = Hapi.server({
-    port: process.env.SERVER_PORT,
-    host: process.env.NODE_ENV !== 'production' ? 'localhost' : process.env.SERVER_HOST,
+    port: credentials.server.port,
+    host: credentials.server.host,
     routes: {
       cors: {
         origin: ['*']

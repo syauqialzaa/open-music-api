@@ -15,7 +15,7 @@ class CollaborationService {
     }
 
     const result = await this._pool.query(query)
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('Collaboration failed to add.')
     }
 
@@ -29,7 +29,7 @@ class CollaborationService {
     }
 
     const result = await this._pool.query(query)
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('Collaboration failed to delete.')
     }
   }
@@ -41,7 +41,7 @@ class CollaborationService {
     }
 
     const result = await this._pool.query(query)
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('Collaboration failed to verify.')
     }
   }
